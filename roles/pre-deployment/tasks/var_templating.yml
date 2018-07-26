@@ -1,0 +1,11 @@
+---
+- name: Templating var file for host.
+  template:
+    src: templates/variable_template.yml.j2
+    dest: /opt/ansible/vars/{{ node_name }}_variables.yml
+    owner: root
+    group: root
+    mode: 0330
+    newline_sequence: '\r\n'
+    backup: yes
+...

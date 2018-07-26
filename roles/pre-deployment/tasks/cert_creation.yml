@@ -1,0 +1,31 @@
+---
+- name: Insuring openssl is installed and up to date.
+  apt:
+    name: openssl
+    state: latest
+    update_cache: true
+
+- name: templating temporary cnf file for adding a SAN to the self-signed cert.
+  template:
+    src: templates/temp-prefix.cnf.j2
+    dest: /tmp/prefix.cnf
+
+- name: Creating directories for certs.
+  file:
+    path: /data/moloch/etc/certs/{{ node_name }}
+    state: directory
+    mode: 0755
+
+- name: Generating Self-signed Certs
+  shell: |
+    openssl genrsa -aes256 -out {{ key_prefix }}.key 4096 -noout
+    openssl req -new -sha256 -key {{ key_prefix }}.key -subj "CN={{ node_name }}"  -out {{ key_prefix }}.csr
+    openssl x509 -req -extensions v3_req -days 3650 -in {{ key_prefix }}.csr -signkey {{ key_prefix }}.key -out {{ key_prefix }}.crt -extfile /tmp/prefix.cnf
+  args:
+    creates: "{{ key_prefix }}.key"
+
+- name: cleanup
+  file:
+    path: /tmp/prefix.cnf
+    state: absent
+...

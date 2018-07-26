@@ -1,0 +1,98 @@
+---
+- hosts: localhost
+  vars_prompt:
+    - name: "single_instance"
+      prompt: will this host only have 1 instance of Moloch and ES? (y/n)
+      private: no
+
+    - name: "fresh_vars"
+      prompt: This script saves host settings, if they exist, do you want to update them? (y/n)
+      private: no
+
+  tasks:
+    - name: Checking Linux Distro.
+      fail: msg="The flavor of linux you are using is currently not supported, please open an issue on github at https://github.com/problematiq/Ansible_Moloch-all-in-one/issues"
+      when: ( ansible_distribution != "Ubuntu" ) and ( ansible_distribution_version != "16.04" )
+
+    - pause:
+        prompt: Please input a name for this instance of moloch.
+      no_log: true
+      register: unique_name
+      when: { "'n' in single_instance|lower" }
+
+# setting Moloch name
+    - set_fact:
+        node_name: "{{ ansible_hostname if single_instance|lower = y else unique_name }}"
+
+# Shortening the path for certs.
+    - set_fact:
+        key_prefix: "/data/moloch/etc/certs/{{ node_name }}/{{ node_name }}"
+
+    - name: Checking for pre-defined variables.
+    stat:
+      path: /opt/ansible/vars/{{ node_name }}_variables.yml
+    register: vars_exists
+
+    - name: Including variables
+      include_vars: /opt/ansible/vars/{{ node_name }}_variables.yml
+      when: { "'true' in vars_exists.stat.exists|lower and 'n' in fresh_vars|lower" }
+
+    - pause:
+        prompt: Do you wish to encrypt web traffic to moloch? (y/n)
+      no_log: true
+      register: tls_support
+      when: tls_support is not defined
+
+    - pause:
+        prompt: Do you want to create self-signed certs? (y/n)
+      no_log: true
+      register: self_sign
+      when: { "'y' in tls_support|lower and self_sign is not defined" }
+
+    - pause:
+        prompt: specify the path and directory your certs you wish to use are located. (e.g /opt/certs)
+      no_log: true
+      register: cert_path
+      when: { "'n' in self_sign|lower and 'y' in tls_support|lower"  }
+
+    - pause:
+        prompt: Do you want to install ES locally? (y/n)
+      no_log: true
+      register: local_es
+      when: local_es is not defined
+
+    - pause:
+        prompt: What is the URL for ElasticSearch? (http://eshost:9200)
+      no_log: True
+      register: remote_es_url
+      when: { "'n' in local_es|lower" }
+
+    - pause:
+        prompt: will this Moloch be monitoring traffic from an interface? (y/n)
+      no_log: true
+      register: data_ingest
+      when: data_ingest is not defined
+
+    - pause:
+        prompt: Do you want to specify an interface (y), or let this script set them? (n)
+      no_log: true
+      register: set_interfaces
+      when: { "interfaces is not defined and 'y' in data_ingest|lower" }
+
+    - set_fact:
+        interfaces_raw: "{{ for interface in ansible_interfaces | difference([ansible_default_ipv4.interface]) | difference(['veth']) | difference(['lo']) |difference(['docker'])+; }}"
+        interfaces: "{{ interfaces_raw|trim([';']) }}"
+      when: { 'n' in set_interfaces|lower }
+
+    - pause:
+        prompt: Please enter the name of the interfaces seperated by Semicolons. (e.g eth1;eno3;enp1so4)
+      register: interfaces
+      when: { 'y' in set_interfaces|lower or interfaces is not defined }
+
+    - pause:
+        prompt: Please enter a Secret password used to encrypt the user data in ES.
+      register: es_secret
+      when: es_secret is not defined
+
+    - include_role:
+        name: pre-deployment

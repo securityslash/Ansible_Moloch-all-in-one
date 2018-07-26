@@ -1,0 +1,43 @@
+#########################################
+# Var file for ansible.
+# This file is created when the playbook for Moloch node creation is ran.
+# This is to act as a repository for settings made to the container(s).
+#########################################
+
+# This Var specifies if the script will use the hostname, or a fabricated name for a naming scheme.
+single_instance: {{ single_instance|lower }}
+
+# Name of the Moloch Node
+node_name: {{ node_name }}
+
+# specify if Moloch's Web traffic should be encrypted or not.
+tls_support: {{ tls_support|lower }}
+
+{% if tls_support == 'y' %}
+# will this script be generating a self-signed cert?
+self_sign: {{ self_sign|lower }}
+{% endif %}
+
+{% if tls_support == 'y' and self_sign == 'n' %}
+# The path to certs located on the host machine.
+cert_path: {{ cert_path }}
+{% endif %}
+
+# will this box have it's own ES node?
+local_es: {{ local_es|lower }}
+
+{% if local_es == 'n' %}
+# The URL for the remote ES node/cluster
+remote_es_url: {{ remote_es_url }}
+{% enif %}
+
+# will this Moloch be monitoring traffic from an interface?
+data_ingest: {{ data_ingest|lower }}
+
+{% if data_ingest == 'y' %}
+# Semicolon seperated list of interfaces to monitor traffic from.
+interfaces: {{ interfaces }}
+{% endif %}
+
+# Password used to encrypt user profiles in ES.
+es_secret: {{ es_secret }}
