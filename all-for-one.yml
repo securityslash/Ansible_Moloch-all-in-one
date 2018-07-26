@@ -31,12 +31,12 @@
     - name: Checking to see if self-signed certs exsist
       stat:
         path: "{{ key_prefix }}.crt"
-      register: node_certs_exists
+      register: "node_certs_exists"
 
     - name: Checking for pre-defined variables.
       stat:
         path: /opt/ansible/vars/{{ node_name }}_variables.yml
-      register: vars_exists
+      register: "vars_exists"
 
     - name: Including variables
       include_vars: /opt/ansible/vars/{{ node_name }}_variables.yml
@@ -45,22 +45,22 @@
     - pause:
         prompt: Do you wish to encrypt web traffic to moloch? (y/n)
       # no_log: true
-      register: tls_support
+      register: "tls_support"
       when: tls_support is not defined
 
     - pause:
         prompt: Do you want to create self-signed certs? (y/n)
-      register: self_sign
+      register: "self_sign"
       # no_log: true
       when: ('y' in tls_support|lower and self_sign is not defined and 'false' in node_certs_exists.stat.exists|lower)
 
     - debug:
-        msg: "{{ self_sign }}"
+        var: self_sign
 
     - pause:
         prompt: specify the path and directory your certs you wish to use are located. (e.g /opt/certs)
       # no_log: true
-      register: cert_path
+      register: "cert_path"
       when: ('n' in self_sign|lower)
 
     - set_fact:
