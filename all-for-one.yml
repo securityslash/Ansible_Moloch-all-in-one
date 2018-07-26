@@ -28,10 +28,15 @@
     - set_fact:
         key_prefix: "/data/moloch/etc/certs/{{ node_name }}/{{ node_name }}"
 
+    - name: Checking to see if self-signed certs exsist
+      stat:
+        path: "{{ key_prefix }}.crt"
+      register: node_certs_exists
+
     - name: Checking for pre-defined variables.
-    stat:
-      path: /opt/ansible/vars/{{ node_name }}_variables.yml
-    register: vars_exists
+      stat:
+        path: /opt/ansible/vars/{{ node_name }}_variables.yml
+      register: vars_exists
 
     - name: Including variables
       include_vars: /opt/ansible/vars/{{ node_name }}_variables.yml
@@ -47,13 +52,17 @@
         prompt: Do you want to create self-signed certs? (y/n)
       no_log: true
       register: self_sign
-      when: { "'y' in tls_support|lower and self_sign is not defined" }
+      when: { "'y' in tls_support|lower and self_sign is not defined and 'false' in node_certs_exists.stat.exists|lower" }
 
     - pause:
         prompt: specify the path and directory your certs you wish to use are located. (e.g /opt/certs)
       no_log: true
       register: cert_path
-      when: { "'n' in self_sign|lower and 'y' in tls_support|lower"  }
+      when: { "'n' in self_sign|lower and 'y' in tls_support|lower and 'false' in node_certs_exists.stat.exists|lower" }
+
+    - set_fact:
+        cert_path: "{{ key_prefix }}"
+      when: { "'y' in tls_support|lower" and 'y' in self_sign|lower }
 
     - pause:
         prompt: Do you want to install ES locally? (y/n)

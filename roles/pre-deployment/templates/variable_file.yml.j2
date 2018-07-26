@@ -18,7 +18,7 @@ tls_support: {{ tls_support|lower }}
 self_sign: {{ self_sign|lower }}
 {% endif %}
 
-{% if tls_support == 'y' and self_sign == 'n' %}
+{% if tls_support == 'y' and self_sign == 'n' and 'false' in node_certs_exists.stat.exists|lower %}
 # The path to certs located on the host machine.
 cert_path: {{ cert_path }}
 {% endif %}

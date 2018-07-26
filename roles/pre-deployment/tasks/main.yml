@@ -1,9 +1,4 @@
 ---
-# Checking to see if self-signed certs exsist
-  - stat:
-      path: "{{ key_prefix }}.crt"
-    register: node_certs_exists
-
 # Generate self-signed certs if approved, and pre-exsisting certs do not exsist.
   - include_tasks: cert_creation.yml
     when: { "'false' in node_certs_exists.stat.exists|lower and 'y' in self_sign|lower" }
