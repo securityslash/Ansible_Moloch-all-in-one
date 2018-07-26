@@ -12,7 +12,7 @@
   tasks:
     - name: Checking Linux Distro.
       fail: msg="The flavor of linux you are using is currently not supported, please open an issue on github at https://github.com/problematiq/Ansible_Moloch-all-in-one/issues"
-      when: ( ansible_distribution != "Ubuntu" ) and ( ansible_distribution_version != "16.04" )
+      when: (ansible_distribution != "Ubuntu" and ansible_distribution_version != "16.04")
 
     - pause:
         prompt: Please input a name for this instance of moloch.
@@ -40,7 +40,7 @@
 
     - name: Including variables
       include_vars: /opt/ansible/vars/{{ node_name }}_variables.yml
-      when: ('true' in vars_exists.stat.exists|lower) and ('n' in fresh_vars|lower)
+      when: ('true' in vars_exists.stat.exists|lower and 'n' in fresh_vars|lower)
 
     - pause:
         prompt: Do you wish to encrypt web traffic to moloch? (y/n)
@@ -51,16 +51,17 @@
     - pause:
         prompt: Do you want to create self-signed certs? (y/n)
       register: self_sign
-      when: ('y' in tls_support|lower) and (self_sign is not defined) and ('false' in node_certs_exists.stat.exists|lower)
+      no_log: true
+      when: ('y' in tls_support|lower and self_sign is not defined and 'false' in node_certs_exists.stat.exists|lower)
 
     - pause:
         prompt: specify the path and directory your certs you wish to use are located. (e.g /opt/certs)
       register: cert_path
-      when: ('n' in self_sign|lower) and ('y' in tls_support|lower) and ('false' in node_certs_exists.stat.exists|lower)
+      when: ('n' in self_sign|lower and 'y' in tls_support|lower and 'false' in node_certs_exists.stat.exists|lower)
 
     - set_fact:
         cert_path: "{{ key_prefix }}"
-      when: ('y' in tls_support|lower) and ('y' in self_sign|lower)
+      when: ('y' in tls_support|lower and 'y' in self_sign|lower)
 
     - pause:
         prompt: Do you want to install ES locally? (y/n)
@@ -84,7 +85,7 @@
         prompt: Do you want to specify an interface (y), or let this script set them? (n)
       no_log: true
       register: set_interfaces
-      when: (interfaces is not defined) and ('y' in data_ingest|lower)
+      when: (interfaces is not defined and 'y' in data_ingest|lower)
 
     - set_fact:
         interfaces_raw: "{{ for interface in ansible_interfaces | difference([ansible_default_ipv4.interface]) | difference(['veth']) | difference(['lo']) |difference(['docker'])+; }}"
@@ -94,7 +95,7 @@
     - pause:
         prompt: Please enter the name of the interfaces seperated by Semicolons. (e.g eth1;eno3;enp1so4)
       register: interfaces
-      when: ('y' in set_interfaces|lower) or (interfaces is not defined)
+      when: ('y' in set_interfaces|lower or interfaces is not defined)
 
     - pause:
         prompt: Please enter a Secret password used to encrypt the user data in ES.
