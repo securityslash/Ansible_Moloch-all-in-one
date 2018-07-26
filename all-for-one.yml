@@ -21,7 +21,7 @@
 
 # setting Moloch name
     - set_fact:
-        node_name: "{{ ansible_hostname if single_instance|lower = y else unique_name }}"
+        node_name: "{{ ansible_hostname if 'y' in single_instance|lower else unique_name }}"
 
 # Shortening the path for certs.
     - set_fact:
