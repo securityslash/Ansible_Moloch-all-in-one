@@ -17,7 +17,7 @@
     - pause:
         prompt: Please input a name for this instance of moloch.
       register: unique_name
-      when: { "'n' in single_instance|lower" }
+      when: "'n' in single_instance|lower"
 
 # setting Moloch name
     - set_fact:
@@ -39,7 +39,7 @@
 
     - name: Including variables
       include_vars: /opt/ansible/vars/{{ node_name }}_variables.yml
-      when: { "'true' in vars_exists.stat.exists|lower and 'n' in fresh_vars|lower" }
+      when:  "'true' in vars_exists.stat.exists|lower and 'n' in fresh_vars|lower"
 
     - pause:
         prompt: Do you wish to encrypt web traffic to moloch? (y/n)
@@ -51,17 +51,17 @@
         prompt: Do you want to create self-signed certs? (y/n)
       no_log: true
       register: self_sign
-      when: { "'y' in tls_support|lower and self_sign is not defined and 'false' in node_certs_exists.stat.exists|lower" }
+      when: "'y' in tls_support|lower and self_sign is not defined and 'false' in node_certs_exists.stat.exists|lower"
 
     - pause:
         prompt: specify the path and directory your certs you wish to use are located. (e.g /opt/certs)
       no_log: true
       register: cert_path
-      when: { "'n' in self_sign|lower and 'y' in tls_support|lower and 'false' in node_certs_exists.stat.exists|lower" }
+      when: "'n' in self_sign|lower and 'y' in tls_support|lower and 'false' in node_certs_exists.stat.exists|lower"
 
     - set_fact:
         cert_path: "{{ key_prefix }}"
-      when: { "'y' in tls_support|lower and 'y' in self_sign|lower" }
+      when: "'y' in tls_support|lower and 'y' in self_sign|lower"
 
     - pause:
         prompt: Do you want to install ES locally? (y/n)
@@ -73,7 +73,7 @@
         prompt: What is the URL for ElasticSearch? (http://eshost:9200)
       no_log: True
       register: remote_es_url
-      when: { "'n' in local_es|lower" }
+      when: "'n' in local_es|lower"
 
     - pause:
         prompt: will this Moloch be monitoring traffic from an interface? (y/n)
@@ -85,17 +85,17 @@
         prompt: Do you want to specify an interface (y), or let this script set them? (n)
       no_log: true
       register: set_interfaces
-      when: { "interfaces is not defined and 'y' in data_ingest|lower" }
+      when: "interfaces is not defined and 'y' in data_ingest|lower"
 
     - set_fact:
         interfaces_raw: "{{ for interface in ansible_interfaces | difference([ansible_default_ipv4.interface]) | difference(['veth']) | difference(['lo']) |difference(['docker'])+; }}"
         interfaces: "{{ interfaces_raw|trim([';']) }}"
-      when: { "'n' in set_interfaces|lower" }
+      when: "'n' in set_interfaces|lower"
 
     - pause:
         prompt: Please enter the name of the interfaces seperated by Semicolons. (e.g eth1;eno3;enp1so4)
       register: interfaces
-      when: { "'y' in set_interfaces|lower or interfaces is not defined" }
+      when: "'y' in set_interfaces|lower or interfaces is not defined"
 
     - pause:
         prompt: Please enter a Secret password used to encrypt the user data in ES.
