@@ -9,14 +9,14 @@
       prompt: This script saves host settings, if they exist, do you want to update them? (y/n)
       private: no
 
-  tasks:
+  pre_tasks:
     - name: Checking Linux Distro.
       fail: msg="The flavor of linux you are using is currently not supported, please open an issue on github at https://github.com/problematiq/Ansible_Moloch-all-in-one/issues"
       when: (ansible_distribution != "Ubuntu" and ansible_distribution_version != "16.04")
 
     - pause:
         prompt: Please input a name for this instance of moloch.
-      no_log: true
+      # no_log: true
       register: unique_name
       when: "'n' in single_instance|lower"
 
@@ -44,20 +44,21 @@
 
     - pause:
         prompt: Do you wish to encrypt web traffic to moloch? (y/n)
-      no_log: true
+      # no_log: true
       register: tls_support
       when: tls_support is not defined
 
     - pause:
         prompt: Do you want to create self-signed certs? (y/n)
       register: self_sign
-      no_log: true
+      # no_log: true
       when: ('y' in tls_support|lower and self_sign is not defined and 'false' in node_certs_exists.stat.exists|lower)
 
     - pause:
         prompt: specify the path and directory your certs you wish to use are located. (e.g /opt/certs)
+      # no_log: true
       register: cert_path
-      when: ('n' in self_sign|lower and 'y' in tls_support|lower and 'false' in node_certs_exists.stat.exists|lower)
+      when: ('n' in self_sign|lower)
 
     - set_fact:
         cert_path: "{{ key_prefix }}"
@@ -65,25 +66,25 @@
 
     - pause:
         prompt: Do you want to install ES locally? (y/n)
-      no_log: true
+      # no_log: true
       register: local_es
       when: local_es is not defined
 
     - pause:
         prompt: What is the URL for ElasticSearch? (http://eshost:9200)
-      no_log: True
+      # no_log: True
       register: remote_es_url
       when: "'n' in local_es|lower"
 
     - pause:
         prompt: will this Moloch be monitoring traffic from an interface? (y/n)
-      no_log: true
+      # no_log: true
       register: data_ingest
       when: data_ingest is not defined
 
     - pause:
         prompt: Do you want to specify an interface (y), or let this script set them? (n)
-      no_log: true
+      # no_log: true
       register: set_interfaces
       when: (interfaces is not defined and 'y' in data_ingest|lower)
 
@@ -101,6 +102,6 @@
         prompt: Please enter a Secret password used to encrypt the user data in ES.
       register: es_secret
       when: es_secret is not defined
-
+  tasks:
     - include_role:
         name: pre-deployment
