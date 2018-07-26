@@ -54,11 +54,14 @@
       # no_log: true
       when: ('y' in tls_support|lower and self_sign is not defined and 'false' in node_certs_exists.stat.exists|lower)
 
+    - debug:
+        msg: "{{ self_sign }}"
+
     - pause:
         prompt: specify the path and directory your certs you wish to use are located. (e.g /opt/certs)
       # no_log: true
       register: cert_path
-      when: ('n' in self_sign|lower)
+      when: 'n' in self_sign|lower
 
     - set_fact:
         cert_path: "{{ key_prefix }}"
