@@ -62,7 +62,7 @@
 
     - set_fact:
         cert_path: "{{ key_prefix }}"
-      when: { "'y' in tls_support|lower" and 'y' in self_sign|lower }
+      when: { "'y' in tls_support|lower and 'y' in self_sign|lower" }
 
     - pause:
         prompt: Do you want to install ES locally? (y/n)
