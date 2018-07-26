@@ -16,6 +16,7 @@
 
     - pause:
         prompt: Please input a name for this instance of moloch.
+      no_log: true
       register: unique_name
       when: "'n' in single_instance|lower"
 
@@ -49,13 +50,11 @@
 
     - pause:
         prompt: Do you want to create self-signed certs? (y/n)
-      no_log: true
       register: self_sign
       when: "'y' in tls_support|lower and self_sign is not defined and 'false' in node_certs_exists.stat.exists|lower"
 
     - pause:
         prompt: specify the path and directory your certs you wish to use are located. (e.g /opt/certs)
-      no_log: true
       register: cert_path
       when: "'n' in self_sign|lower and 'y' in tls_support|lower and 'false' in node_certs_exists.stat.exists|lower"
 
