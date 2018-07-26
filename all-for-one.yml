@@ -16,7 +16,6 @@
 
     - pause:
         prompt: Please input a name for this instance of moloch.
-      no_log: true
       register: unique_name
       when: { "'n' in single_instance|lower" }
 
