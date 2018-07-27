@@ -57,7 +57,7 @@
     - pause:
         prompt: Do you want to create self-signed certs? (y/n)
       register: "self_sign"
-      no_log: true
+      # no_log: true
       when: ( tls_support|lower == 'y' and self_sign is not defined and node_certs_exists.stat.exists|lower == 'false' )
 
     - pause:
