@@ -61,7 +61,7 @@
         prompt: specify the path and directory your certs you wish to use are located. (e.g /opt/certs)
       # no_log: true
       register: "cert_path"
-      when: ('n' in self_sign|lower)
+      when: (self_sign|lower == 'n')
 
     - set_fact:
         cert_path: "{{ key_prefix }}"
