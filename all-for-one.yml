@@ -50,7 +50,7 @@
 
     - pause:
         prompt: Do you wish to encrypt web traffic to moloch? (y/n)
-      no_log: true
+      # no_log: true
       register: "tls_support"
       when: tls_support is not defined
 
