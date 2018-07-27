@@ -54,6 +54,9 @@
       register: "tls_support"
       when: tls_support is not defined
 
+    - debug:
+      msg: "{{ tls_support|lower }} {{ node_certs_exists.stat.exists|lower }} "
+
     - pause:
         prompt: Do you want to create self-signed certs? (y/n)
       register: "self_sign"
