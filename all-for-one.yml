@@ -1,19 +1,24 @@
 ---
 - hosts: localhost
-  vars_prompt:
-    - name: "single_instance"
-      prompt: will this host only have 1 instance of Moloch and ES? (y/n)
-      private: no
 
+# Use exsisting Vars, or restart the questionare.
     - name: "fresh_vars"
       prompt: This script saves host settings, if they exist, do you want to update them? (y/n)
       private: no
 
+# Testing linux version
   pre_tasks:
     - name: Checking Linux Distro.
       fail: msg="The flavor of linux you are using is currently not supported, please open an issue on github at https://github.com/problematiq/Ansible_Moloch-all-in-one/issues"
       when: (ansible_distribution != "Ubuntu" and ansible_distribution_version != "16.04")
 
+# Does the user want to load multiple moloch instances.
+    - pause:
+        prompt: will this host only have 1 instance of Moloch and ES? (y/n)
+      register: "single_instance"
+      no_log: True
+
+# Instance nameing.
     - pause:
         prompt: Please input a name for this instance of moloch.
       no_log: true
@@ -22,12 +27,13 @@
 
 # setting Moloch name
     - set_fact:
-        node_name: "{{ ansible_hostname if 'y' in single_instance|lower else unique_name }}"
+        node_name: "{{ ansible_hostname if single_instance|lower == 'y' else unique_name }}"
 
 # Shortening the path for certs.
     - set_fact:
         key_prefix: "/data/moloch/etc/certs/{{ node_name }}/{{ node_name }}"
 
+# File checking
     - name: Checking to see if self-signed certs exsist
       stat:
         path: "{{ key_prefix }}.crt"
@@ -38,16 +44,19 @@
         path: /opt/ansible/vars/{{ node_name }}_variables.yml
       register: "vars_exists"
 
+# if variable file exsists, then include vars from file
     - name: Including variables
       include_vars: /opt/ansible/vars/{{ node_name }}_variables.yml
       when: ( vars_exists.stat.exists|lower == 'true' and fresh_vars|lower == 'n' )
 
+# Does the user wish to install wise?
     - pause:
         prompt: Do you wish to install WISE?
       no_log: True
       register: install_wise
       when: ( install_wise is not defined )
 
+# prompt for cert useage.
     - pause:
         prompt: Do you wish to encrypt web traffic to moloch? (y/n)
       # no_log: true
@@ -57,60 +66,72 @@
     - debug:
       msg: "{{ tls_support }} {{ node_certs_exists.stat.exists }} "
 
+# do you want to let the script handle cert creation?
     - pause:
         prompt: Do you want to create self-signed certs? (y/n)
       register: "self_sign"
       # no_log: true
       when: ( tls_support|lower == 'y' and self_sign is not defined and node_certs_exists.stat.exists|lower == 'false' )
 
+# If user has certs, where are they located on the host?
     - pause:
         prompt: specify the path and directory your certs you wish to use are located. (e.g /opt/certs)
       no_log: true
       register: "cert_path"
       when: ( self_sign|lower == 'n' )
 
+# if self-signed certs were created, use their path for configs
     - set_fact:
         cert_path: "{{ key_prefix }}"
       when: (tls_support|lower == 'y' and self_sign|lower == 'y')
 
+# Does the user wish to install ES locally, or do they have a remote node/cluster?
     - pause:
         prompt: Do you want to install ES locally? (y/n)
       no_log: true
       register: local_es
       when: local_es is not defined
 
+# If user has remote node/cluster, then what is the url?
     - pause:
         prompt: What is the URL for ElasticSearch? (http://eshost:9200)
       no_log: True
       register: remote_es_url
       when: ( local_es|lower == 'n' )
 
-    - pause:
-        prompt: will this Moloch be monitoring traffic from an interface? (y/n)
-      no_log: true
-      register: data_ingest
-      when: data_ingest is not defined
+# # Will this moloch be used for pcap ingestion, or monitoring an interface?
+#     - pause:
+#         prompt: will this Moloch be monitoring traffic from an interface? (y/n)
+#       no_log: true
+#       register: data_ingest
+#       when: data_ingest is not defined
 
+# Let the script handle interfaces, or enter them manually.
     - pause:
         prompt: Do you want to specify an interface (y), or let this script set them? (n)
       no_log: true
       register: set_interfaces
-      when: ( interfaces is not defined and data_ingest|lower == 'y' )
+      when: ( interfaces is not defined )
 
+# script interfaces
     - set_fact:
         interfaces_raw: "{{ for interface in ansible_interfaces | difference([ansible_default_ipv4.interface]) | difference(['veth']) | difference(['lo']) |difference(['docker'])+; }}"
         interfaces: "{{ interfaces_raw|trim([';']) }}"
       when: ( set_interfaces|lower == 'n' )
 
+# Manually set interface names.
     - pause:
         prompt: Please enter the name of the interfaces seperated by Semicolons. (e.g eth1;eno3;enp1so4)
       register: interfaces
       when: ( set_interfaces|lower == 'y' or interfaces is not defined )
 
+# set password for ES user data encryption.
     - pause:
         prompt: Please enter a Secret password used to encrypt the user data in ES.
       register: es_secret
       when: es_secret is not defined
+
+# Actually start doing something.
   tasks:
     - include_role:
         name: pre-deployment
