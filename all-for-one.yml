@@ -1,6 +1,6 @@
 ---
 - hosts: localhost
-
+  vars_prompt:
 # Use exsisting Vars, or restart the questionare.
     - name: "fresh_vars"
       prompt: This script saves host settings, if they exist, do you want to update them? (y/n)
