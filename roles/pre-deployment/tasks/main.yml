@@ -1,8 +1,11 @@
 ---
 # Generate self-signed certs if approved, and pre-exsisting certs do not exsist.
   - include_tasks: cert_creation.yml
-    when: ( node_certs_exists.stat.exists|lower == 'false' and self_sign|lower == 'y' )
+    when:
+      - node_certs_exists.stat.exists == False
+      - self_sign|lower == "y"
 
   - include_tasks: var_templating.yml
-    when: ( vars_exists.stat.exists|lower == 'false' ) or ( fresh_vars|lower == 'y' )
+    when: ( vars_exists.stat.exists == False ) or
+          ( fresh_vars|lower == "y" )
 ...
