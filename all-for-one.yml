@@ -64,7 +64,9 @@
       when: tls_support is not defined
 
     - debug:
-        var: tls_support node_certs_exists.stat.exists
+        var: tls_support
+    - debug:
+        var: node_certs_exists.stat.exists
 
 # do you want to let the script handle cert creation?
     - pause:
