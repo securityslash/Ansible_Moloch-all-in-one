@@ -64,7 +64,7 @@
       when: tls_support is not defined
 
     - debug:
-      msg: ( {{ tls_support }} + {{ node_certs_exists.stat.exists }} )
+        var: tls_support node_certs_exists.stat.exists
 
 # do you want to let the script handle cert creation?
     - pause:
