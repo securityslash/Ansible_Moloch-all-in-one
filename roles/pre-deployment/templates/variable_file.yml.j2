@@ -37,10 +37,8 @@ remote_es_url: {{ remote_es_url }}
 {# # will this Moloch be monitoring traffic from an interface?
 data_ingest: {{ data_ingest|lower }} #}
 
-{% if data_ingest == 'y' %}
 # Semicolon seperated list of interfaces to monitor traffic from.
 interfaces: {{ interfaces }}
-{% endif %}
 
 # Password used to encrypt user profiles in ES.
 es_secret: {{ es_secret }}
