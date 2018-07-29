@@ -32,7 +32,7 @@ local_es: {{ local_es|lower }}
 {% if local_es == 'n' %}
 # The URL for the remote ES node/cluster
 remote_es_url: {{ remote_es_url }}
-{% enif %}
+{% endif %}
 
 # will this Moloch be monitoring traffic from an interface?
 data_ingest: {{ data_ingest|lower }}
