@@ -122,7 +122,7 @@
 # script interfaces
     - set_fact:
         interfaces_raw: "{{ for interface in ansible_interfaces | difference([ansible_default_ipv4.interface]) | difference(['veth']) | difference(['lo']) |difference(['docker'])+; }}"
-        interfaces: "{{ interfaces_raw|trim([';']) }}"
+        interfaces: "{{ interfaces_raw|trim(';') }}"
       when: set_interfaces.user_input|lower == "n"
 
 # Manually set interface names.
