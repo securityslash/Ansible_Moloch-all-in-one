@@ -1,7 +1,7 @@
 ---
 - name: Templating var file for host.
   template:
-    src: templates/var_file.yml.j2
+    src: templates/variable_file.yml.j2
     dest: /opt/ansible/vars/{{ node_name }}_variables.yml
     owner: root
     group: root
