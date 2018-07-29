@@ -34,8 +34,8 @@ local_es: {{ local_es|lower }}
 remote_es_url: {{ remote_es_url }}
 {% endif %}
 
-# will this Moloch be monitoring traffic from an interface?
-data_ingest: {{ data_ingest|lower }}
+{# # will this Moloch be monitoring traffic from an interface?
+data_ingest: {{ data_ingest|lower }} #}
 
 {% if data_ingest == 'y' %}
 # Semicolon seperated list of interfaces to monitor traffic from.
