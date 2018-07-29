@@ -3,7 +3,7 @@
   - include_tasks: cert_creation.yml
     when:
       - node_certs_exists.stat.exists == False
-      - self_sign|lower == "y"
+      - self_sign.user_input|lower == "y"
 
   - include_tasks: var_templating.yml
     when: ( vars_exists.stat.exists == False ) or
