@@ -18,8 +18,8 @@
 
 - name: Generating Self-signed Certs
   shell: |
-    openssl genrsa -aes256 -out {{ key_prefix }}.key 4096 -noout
-    openssl req -new -sha256 -key {{ key_prefix }}.key -subj "CN={{ node_name }}"  -out {{ key_prefix }}.csr
+    openssl genrsa -out {{ key_prefix }}.key 4096
+    openssl req -new -sha256 -key {{ key_prefix }}.key -subj "CN={{ node_name }}" -out {{ key_prefix }}.csr
     openssl x509 -req -extensions v3_req -days 3650 -in {{ key_prefix }}.csr -signkey {{ key_prefix }}.key -out {{ key_prefix }}.crt -extfile /tmp/prefix.cnf
   args:
     creates: "{{ key_prefix }}.key"
