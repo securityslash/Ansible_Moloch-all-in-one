@@ -121,7 +121,7 @@
 
 # script interfaces
     - set_fact:
-        interfaces_raw: "{{ for interface in ansible_interfaces | difference([ansible_default_ipv4.interface]) | difference(['veth']) | difference(['lo']) | difference(['docker']) }} + ';' "
+        interfaces_raw: "{% for i in ansible_interfaces|difference([ansible_default_ipv4.interface])|difference(['veth'])|difference(['lo'])|difference(['docker'])%}{{data[i]+';'}}{% endfor %}"
       when: set_interfaces.user_input|lower == "n"
     - set_fact:
         interfaces: "{{ interfaces_raw[:-1] }}"
