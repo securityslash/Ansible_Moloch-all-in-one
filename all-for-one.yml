@@ -57,9 +57,9 @@
     - set_fact:
         self_sign:
           user_input: "n"
-        when:
-          - node_certs_exists.stat.exists == True
-          - self_sign is not defined
+      when:
+        - node_certs_exists.stat.exists == True
+        - self_sign is not defined
 
 # do you want to let the script handle cert creation?
     - pause:
