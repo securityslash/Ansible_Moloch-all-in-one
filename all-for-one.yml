@@ -55,7 +55,8 @@
 
 # Set selfsign to "No" when certs are found
     - set_fact:
-        self_sign.user_input: "n"
+        self_sign:
+          user_input: "n"
         when:
           - node_certs_exists.stat.exists == True
           - self_sign is not defined
