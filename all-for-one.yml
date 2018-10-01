@@ -45,7 +45,7 @@
       include_vars: /opt/ansible/vars/{{ node_name }}_variables.yml
       when:
         - vars_exists.stat.exists == True
-        - fresh_vars.user_input|lower == "n"
+        - fresh_vars|lower == "n"
 
 # Does the user wish to install wise?
     - pause:
@@ -69,13 +69,13 @@
         prompt: specify the path and directory your certs you wish to use are located. (e.g /opt/certs)
       register: "cert_path"
       when:
-        - self_sign.user_input|lower == "n"
+        - self_sign|lower == "n"
         - node_certs_exists.stat.exists == False
 
 # if self-signed certs were created, use their path for configs
     - set_fact:
         cert_path: "{{ key_prefix }}"
-      when: self_sign.user_input|lower == "y"
+      when: self_sign|lower == "y"
 
 # Does the user wish to install ES locally, or do they have a remote node/cluster?
     - pause:
@@ -87,7 +87,7 @@
     - pause:
         prompt: What is the URL for ElasticSearch? (http://eshost:9200)
       register: remote_es_url
-      when: local_es.user_input|lower == "n"
+      when: local_es|lower == "n"
 
 #FIXME# Will this moloch be used for pcap ingestion, or monitoring an interface?
 #     - pause:
