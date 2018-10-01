@@ -53,19 +53,24 @@
       register: "install_wise"
       when: install_wise is not defined
 
+# Set selfsign to "No" when certs are found
+    - set_fact:
+        self_sign: "n"
+        when: node_certs_exists.stat.exists == True
+
 # do you want to let the script handle cert creation?
     - pause:
         prompt: Do you want to create self-signed certs? (y/n)
       register: "self_sign"
-      when:
-        - self_sign is not defined
-        - node_certs_exists.stat.exists == False
+      when: self_sign is not defined
 
 # If user has certs, where are they located on the host?
     - pause:
         prompt: specify the path and directory your certs you wish to use are located. (e.g /opt/certs)
       register: "cert_path"
-      when: self_sign.user_input|lower == "n"
+      when:
+        - self_sign.user_input|lower == "n"
+        - node_certs_exists.stat.exists == False
 
 # if self-signed certs were created, use their path for configs
     - set_fact:
