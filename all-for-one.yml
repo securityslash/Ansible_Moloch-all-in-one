@@ -56,7 +56,9 @@
 # Set selfsign to "No" when certs are found
     - set_fact:
         self_sign: "n"
-        when: node_certs_exists.stat.exists == True
+        when:
+          - node_certs_exists.stat.exists == True
+          - self_sign is not defined
 
 # do you want to let the script handle cert creation?
     - pause:
@@ -69,13 +71,15 @@
         prompt: specify the path and directory your certs you wish to use are located. (e.g /opt/certs)
       register: "cert_path"
       when:
-        - self_sign|lower == "n"
+        - ( self_sign.user_input|lower == "n" ) or
+          ( self_sign == "n" )
         - node_certs_exists.stat.exists == False
 
 # if self-signed certs were created, use their path for configs
     - set_fact:
         cert_path: "{{ key_prefix }}"
-      when: self_sign|lower == "y"
+      when: ( self_sign.user_input|lower == "y" ) or
+            ( self_sign == "y" )
 
 # Does the user wish to install ES locally, or do they have a remote node/cluster?
     - pause:
@@ -87,7 +91,8 @@
     - pause:
         prompt: What is the URL for ElasticSearch? (http://eshost:9200)
       register: remote_es_url
-      when: local_es|lower == "n"
+      when: ( local_es.user_input|lower == "n" ) or
+            ( local_es == "n" )
 
 #FIXME# Will this moloch be used for pcap ingestion, or monitoring an interface?
 #     - pause:
@@ -107,8 +112,9 @@
         prompt: Please enter the name of the interfaces seperated by Semicolons. (e.g eth1;eno3;enp1so4)
       register: monitoring_ports
       when:
-        - set_interfaces.user_input|lower == "y"
-        - interfaces is not defined
+        - ( set_interfaces.user_input|lower == "y" ) or
+          ( set_interfaces == "y" )
+        - monitoring_ports is not defined
 
 # set password for ES user data encryption.
     - pause:

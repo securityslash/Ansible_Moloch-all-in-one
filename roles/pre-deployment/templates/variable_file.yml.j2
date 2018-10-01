@@ -7,22 +7,22 @@
 node_name: {{ node_name }}
 
 # Install WISE?
-install_wise: {{ install_wise }}
+install_wise: {{ install_wise.user_input|lower }}
 
 # will this script be generating a self-signed cert?
-self_sign: {{ self_sign|lower }}
+self_sign: {{ self_sign.user_input|lower }}
 
 {% if self_sign == 'n' and 'false' in node_certs_exists.stat.exists|lower %}
 # The path to certs located on the host machine.
-cert_path: {{ cert_path }}
+cert_path: {{ cert_path.user_input }}
 {% endif %}
 
 # will this box have it's own ES node?
-local_es: {{ local_es|lower }}
+local_es: {{ local_es.user_input|lower }}
 
 {% if local_es == 'n' %}
 # The URL for the remote ES node/cluster
-remote_es_url: {{ remote_es_url }}
+remote_es_url: {{ remote_es_url.user_input }}
 {% endif %}
 
 {#FIXME# will this Moloch be monitoring traffic from an interface?
@@ -32,4 +32,4 @@ data_ingest: {{ data_ingest|lower }} #}
 monitoring_ports: {{ monitoring_ports }}
 
 # Password used to encrypt user profiles in ES.
-es_secret: {{ es_secret }}
+es_secret: {{ es_secret.user_input }}
