@@ -27,9 +27,9 @@ remote_es_url: {{ remote_es_url.user_input }}
 
 {#FIXME# will this Moloch be monitoring traffic from an interface?
 data_ingest: {{ data_ingest|lower }} #}
+{% if monitoring_ports is defined %}
 
 # Semicolon seperated list of interfaces to monitor traffic from.
-{% if monitoring_ports is defined %}
 monitoring_ports: {{ monitoring_ports }}
 {% endif %}
 
