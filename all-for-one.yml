@@ -51,7 +51,7 @@
     - pause:
         prompt: Do you wish to install WISE? (y/n)
       register: "install_wise"
-      when: install_wise is not defined
+      when: install_wise.user_input is not defined
 
 # Set selfsign to "No" when certs are found
     - set_fact:
@@ -82,7 +82,7 @@
     - pause:
         prompt: Do you want to install ES locally? (y/n)
       register: local_es
-      when: local_es is not defined
+      when: local_es.user_input is not defined
 
 # If user has remote node/cluster, then what is the url?
     - pause:
