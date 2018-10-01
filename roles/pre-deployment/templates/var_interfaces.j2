@@ -1,0 +1,6 @@
+{% set comma = joiner(";") %}
+{%- for interface in ansible_interfaces | difference([ansible_default_ipv4.interface]) | difference(['lo']) -%}
+{% if not interface.startswith("docker") and not interface.startswith("veth") and not interface.startswith("bridge") and not interface.startswith("br") %}
+{{- comma() -}}{{- interface -}}
+{% endif %}
+{% endfor %}

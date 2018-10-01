@@ -18,11 +18,11 @@
 
 - name: Generating Self-signed Certs
   shell: |
-    openssl genrsa -out {{ key_prefix }}.key 4096
-    openssl req -new -sha256 -key {{ key_prefix }}.key -subj "CN={{ node_name }}" -out {{ key_prefix }}.csr
-    openssl x509 -req -extensions v3_req -days 3650 -in {{ key_prefix }}.csr -signkey {{ key_prefix }}.key -out {{ key_prefix }}.crt -extfile /tmp/prefix.cnf
+    openssl genrsa -out {{ cert_path }}.key 4096
+    openssl req -new -sha256 -key {{ cert_path }}.key -subj "CN={{ node_name }}" -out {{ cert_path }}.csr
+    openssl x509 -req -extensions v3_req -days 3650 -in {{ cert_path }}.csr -signkey {{ cert_path }}.key -out {{ cert_path }}.crt -extfile /tmp/prefix.cnf
   args:
-    creates: "{{ key_prefix }}.key"
+    creates: "{{ cert_path }}.key"
 
 - name: cleanup
   file:
