@@ -19,7 +19,7 @@
 - name: Generating Self-signed Certs
   shell: |
     openssl genrsa -out {{ cert_path }}.key 4096
-    openssl req -new -sha256 -key {{ cert_path }}.key -subj "CN={{ node_name }}" -out {{ cert_path }}.csr
+    openssl req -new -sha256 -key {{ cert_path }}.key -subj "/C=INT/ST=Crazy/L=Here/O=IceCreamMan/CN={{ node_name }}" -out {{ cert_path }}.csr
     openssl x509 -req -extensions v3_req -days 3650 -in {{ cert_path }}.csr -signkey {{ cert_path }}.key -out {{ cert_path }}.crt -extfile /tmp/prefix.cnf
   args:
     creates: "{{ cert_path }}.key"

@@ -108,7 +108,6 @@
 # set password for ES user data encryption.
     - pause:
         prompt: Please enter a Secret password used to encrypt the user data in ES.
-        echo: no
       register: es_secret
       when: es_secret is not defined
 
