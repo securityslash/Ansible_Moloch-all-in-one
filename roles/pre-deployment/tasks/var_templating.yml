@@ -7,11 +7,6 @@
     group: root
     mode: 0660
 
-- name: setting interfaces
-  set_fact:
-    monitoring_ports: "{{ lookup('template', 'templates/var_interfaces.j2') | from_yaml }}"
-  when: monitoring_ports is not defined
-
 - name: Templating var file for host.
   template:
     src: templates/variable_file.yml.j2

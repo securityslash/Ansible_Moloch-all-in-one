@@ -29,7 +29,9 @@ remote_es_url: {{ remote_es_url.user_input }}
 data_ingest: {{ data_ingest|lower }} #}
 
 # Semicolon seperated list of interfaces to monitor traffic from.
+{% if monitoring_ports is defined %}
 monitoring_ports: {{ monitoring_ports }}
+{% endif %}
 
 # Password used to encrypt user profiles in ES.
 es_secret: {{ es_secret.user_input }}
