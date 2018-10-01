@@ -110,8 +110,7 @@
         echo: no
       register: es_secret
       when: es_secret is not defined
-
+      
 # Actually start doing something.
-  tasks:
     - include_role:
         name: pre-deployment
