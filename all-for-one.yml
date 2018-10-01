@@ -70,10 +70,9 @@
     - pause:
         prompt: specify the path and directory your certs you wish to use are located. (e.g /opt/certs)
       register: "cert_path"
-      when:
-        - ( self_sign.user_input|lower == "n" ) or
-          ( self_sign == "n" )
-        - node_certs_exists.stat.exists == False
+      when: ( self_sign.user_input|lower == "n" ) or
+            ( self_sign == "n" ) and
+            ( node_certs_exists.stat.exists == False )
 
 # if self-signed certs were created, use their path for configs
     - set_fact:
@@ -111,10 +110,9 @@
     - pause:
         prompt: Please enter the name of the interfaces seperated by Semicolons. (e.g eth1;eno3;enp1so4)
       register: monitoring_ports
-      when:
-        - ( set_interfaces.user_input|lower == "y" ) or
-          ( set_interfaces == "y" )
-        - monitoring_ports is not defined
+      when: ( set_interfaces.user_input|lower == "y" ) or
+            ( set_interfaces == "y" ) and
+            ( monitoring_ports is not defined )
 
 # set password for ES user data encryption.
     - pause:
