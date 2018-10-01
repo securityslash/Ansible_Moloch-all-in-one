@@ -15,7 +15,6 @@ install_wise: {{ install_wise }}
 
 # will this script be generating a self-signed cert?
 self_sign: {{ self_sign|lower }}
-{% endif %}
 
 {% if self_sign == 'n' and 'false' in node_certs_exists.stat.exists|lower %}
 # The path to certs located on the host machine.
