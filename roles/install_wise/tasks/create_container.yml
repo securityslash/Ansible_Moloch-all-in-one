@@ -1,0 +1,17 @@
+---
+- name: creating Docker container.
+  docker_container:
+    name: wise
+    pull: true
+    image: problematiq/wise
+    volumes:
+      - /etc/wise/wiseService.ini:/data/moloch/wiseService/wiseService.ini
+      - /data/moloch/logs:/data/moloch/logs
+    detach: true
+    recreate: true
+    tty: true
+    working_dir: /
+    restart_policy: on-failure
+    ports:
+      - "127.0.0.1:8081:8081/tcp"
+...

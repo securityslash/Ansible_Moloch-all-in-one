@@ -1,0 +1,19 @@
+---
+- name: Creating Directories
+  file:
+    path: /etc/wise
+    state: directory
+
+- name: templating wise config files.
+  template:
+    src: "templates/{{ item.s }}"
+    dest: "/etc/wise/{{ item.d }}"
+    mode: 0600
+  with_items:
+    - { s: 'wiseService.ini.j2', d: 'wiseService.ini' }
+
+- name: Running Log rotation settings script.
+  script: files/logrotate.sh
+  args:
+    creates: /etc/logrotate.d/WISE_Logs
+...

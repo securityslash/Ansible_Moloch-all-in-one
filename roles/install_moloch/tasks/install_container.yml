@@ -1,0 +1,25 @@
+---
+- name: creating Docker container.
+  docker_container:
+    name: capture-node
+    pull: true
+    image: problematiq/moloch-docker
+    volumes:
+      - /etc/certs/{{ node_name }}.key:/certs/{{ node_name }}.key
+      - /etc/certs/{{ node_name }}.crt:/certs/{{ node_name }}.crt
+      - /data/moloch/raw/{{ node_name }}:/data/moloch/raw
+      - /data/moloch/logs:/data/moloch/logs
+      - /data/moloch/etc/config.ini:/data/moloch/etc/config.ini
+      - /data/moloch/etc/droptls.yml:/data/moloch/etc/droptls.yml
+    detach: true
+    recreate: true
+    tty: true
+    working_dir: /
+    restart_policy: on-failure
+    network_mode: "host"
+    env:
+      node_name: "{{ node_name }}"
+    ulimits:
+      - "nofile:65536:65536"
+      - "memlock:-1:-1"
+...

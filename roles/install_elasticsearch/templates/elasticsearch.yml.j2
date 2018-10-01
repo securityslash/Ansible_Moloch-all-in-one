@@ -1,0 +1,58 @@
+network.host: 0.0.0.0
+
+# ES Transport port default 9300
+# ES HTTP port default 9200
+
+# minimum_master_nodes need to be explicitly set when bound on a public IP
+# set to 1 to allow single node clusters
+# Details: https://github.com/elastic/elasticsearch/pull/17288
+# disable xpack security in lue of using searchgaurd
+xpack.security.enabled: false
+
+ # Minimum number of master nodes in cluster
+discovery.zen.minimum_master_nodes: 1
+
+# Controls the low watermark for disk usage. It defaults to 85%, meaning that Elasticsearch will not allocate shards to nodes that have more than 85% disk used. It can also be set to an absolute byte value (like 500mb) to prevent Elasticsearch from allocating shards if less than the specified amount of space is available. This setting has no effect on the primary shards of newly-created indices or, specifically, any shards that have never previously been allocated.
+cluster.routing.allocation.disk.watermark.low: 96%
+# Controls the high watermark. It defaults to 90%, meaning that Elasticsearch will attempt to relocate shards away from a node whose disk usage is above 90%. It can also be set to an absolute byte value (similarly to the low watermark) to relocate shards away from a node if it has less than the specified amount of free space. This setting affects the allocation of all shards, whether previously allocated or not.
+cluster.routing.allocation.disk.watermark.high: 97%
+# Controls the flood stage watermark. It defaults to 95%, meaning that Elasticsearch enforces a read-only index block (index.blocks.read_only_allow_delete) on every index that has one or more shards allocated on the node that has at least one disk exceeding the flood stage. This is a last resort to prevent nodes from running out of disk space. The index block must be released manually once there is enough disk space available to allow indexing operations to continue.
+cluster.routing.allocation.disk.watermark.flood_stage: 99%
+
+##########
+# For enabling searchguard TLS. This will require a different container, See https://hub.docker.com/r/problematiq/es_searchguardtls/
+##########
+
+{# # Enable TLS for both transport and http ports for ES if available
+searchguard.ssl.transport.enable_openssl_if_available: true
+searchguard.ssl.http.enable_openssl_if_available: true
+
+# keystore and truststore types for ES transport port
+searchguard.ssl.transport.keystore_type: PKCS12
+searchguard.ssl.transport.truststore_type: JKS
+# Relative path to the keystore file (mandatory, this stores the server certificates), must be placed under the config/ dir
+searchguard.ssl.transport.keystore_filepath: "/usr/share/elasticsearch/config/certs/{{node_name}}_keystore.pkcs12"
+# Relative path to the truststore file (mandatory, this stores the client/root certificates), must be placed under the config/ dir
+searchguard.ssl.transport.truststore_filepath: "/usr/share/elasticsearch/config/certs/{{node_name}}_truststore.jks"
+
+# keystore and truststore types for http
+searchguard.ssl.http.keystore_type: PKCS12
+searchguard.ssl.http.truststore_type: JKS
+# File path to keystore and truststore for ES http
+searchguard.ssl.http.keystore_filepath: "/usr/share/elasticsearch/config/certs/{{node_name}}_keystore.pkcs12"
+searchguard.ssl.http.truststore_filepath: "/usr/share/elasticsearch/config/certs/{{node_name}}_truststore.jks"
+
+# Keystore password (default: changeit)
+searchguard.ssl.transport.keystore_password:
+searchguard.ssl.http.keystore_password:
+searchguard.ssl.transport.truststore_password:
+searchguard.ssl.http.truststore_password:
+
+
+# Enforce hostname verification (default: true)
+searchguard.ssl.transport.enforce_hostname_verification: false
+# If hostname verification is enabled specify if hostname should be resolved (default: true)
+searchguard.ssl.transport.resolve_hostname: false
+
+# Enable TLS for http port?
+searchguard.ssl.http.enabled: true #}

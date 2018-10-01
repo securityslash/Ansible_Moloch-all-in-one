@@ -1,0 +1,7 @@
+---
+  - include_tasks: box_prep.yml
+
+  - include_tasks: es_node_prep.yml
+
+  - include_tasks: install_elasticsearch.yml
+...

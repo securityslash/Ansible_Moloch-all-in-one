@@ -1,0 +1,24 @@
+---
+- name: Running Host settings script.
+  script: files/host_settings.sh
+  args:
+    creates: /etc/security/limits.d/99-moloch.conf
+
+- name: adding repo for java 8
+  apt_repository:
+    repo: 'ppa:webupd8team/java'
+    state: present
+
+- name: set licence selected
+  shell: /bin/echo debconf shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
+
+- name: set license seen
+  shell: /bin/echo debconf shared/accepted-oracle-license-v1-1 seen true | /usr/bin/debconf-set-selections
+
+- name: install java 8
+  apt:
+    name: oracle-java8-installer
+    state: latest
+    update_cache: yes
+    force: yes
+...

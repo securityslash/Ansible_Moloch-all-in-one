@@ -18,12 +18,12 @@
 
 # Testing linux version
   pre_tasks:
-    - name: Checking Linux Distro.
+    - name: Checking OS
       fail:
-        msg: "The flavor of linux you are using is currently not supported, please open an issue on github at https://github.com/problematiq/Ansible_Moloch-all-in-one/issues"
+        msg: "Use version >= 16 of Ubuntu/Debian Heathen!"
       when:
-        - ansible_distribution != "Ubuntu"
-        - ansible_distribution != "Debian"
+        - ansible_os_family != "Debian"
+        - ansible_distribution_major_version|int <= 15
 
 # Shortening the path for certs.
     - set_fact:
@@ -79,7 +79,7 @@
 
 # If user has remote node/cluster, then what is the url?
     - pause:
-        prompt: What is the URL for ElasticSearch? (http://eshost:9200)
+        prompt: What is the URL for ElasticSearch? e.g (http://eshost:9200)
       register: remote_es_url
       when: local_es.user_input|lower == "n"
 #FIXME# Will this moloch be used for pcap ingestion, or monitoring an interface?
@@ -110,6 +110,12 @@
         - monitoring_ports is not defined
         - interfaces.user_input is defined
 
+# Determine of the machine will also function as an IDS.
+    - pause:
+        prompt: Do you want to also set this box up as an IDS? (y/n)
+      register: set_as_ids
+      when: set_as_ids is not defined
+
 # set password for ES user data encryption.
     - pause:
         prompt: Please enter a Secret password used to encrypt the user data in ES.
@@ -119,3 +125,45 @@
 # Actually start doing something.
     - include_role:
         name: pre-deployment
+
+    - name: Creating host information
+      add_host:
+        hostname: "{{ node_name }}"
+        group: deployment
+        node_name: "{{ node_name }}"
+
+- hosts:
+  vars_files:
+    - "/opt/ansible/vars/{{ node_name }}_variables.yml"
+  tasks:
+# Check compatability
+    - name: Checking OS
+      fail:
+        msg: "Use version >= 16  of Ubuntu/Debian Heathen!"
+      when: ( ansible_os_family != "Debian" ) and ( ansible_distribution_major_version|int <= 15 )
+
+# Check to see of Docker is installed
+    - name: Checking to see if docker is installed.
+      shell: "systemctl status docker.service"
+      ignore_errors: yes
+      changed_when: false
+      register: docker_service_exists
+
+# If docker is not installed, Install it.
+    - include_role:
+        name: install_docker
+      when: docker_service_exists is failed
+
+# If local ES, Install it.
+    - include_role:
+        name: install_elasticsearch
+      when: local_es.user_input == "y"
+
+# If WISE is set to install, install the container.
+    - include_role:
+        name: install_wise
+      when: install_wise.user_input == "y"
+
+# Install Moloch
+    - include_role:
+        name: install_moloch

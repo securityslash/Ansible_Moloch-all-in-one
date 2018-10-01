@@ -1,0 +1,7 @@
+---
+  - include_tasks: ifupdown.yml
+
+  - include_tasks: box_prep.yml
+
+  - include_tasks: install_container.yml
+...

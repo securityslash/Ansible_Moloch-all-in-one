@@ -1,0 +1,5 @@
+---
+  - include_tasks: wise_prep.yml
+
+  - include_tasks: create_container.yml
+...

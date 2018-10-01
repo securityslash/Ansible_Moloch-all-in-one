@@ -1,0 +1,28 @@
+---
+- name: Creating docker container.
+  docker_container:
+    name: "{{node_name}}"
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.2
+    state: started
+    restart_policy: on-failure
+    pull: true
+    detach: true
+    recreate: true
+    tty: true
+    memory: "{{ '35' if ansible_memtotal_mb >= 50000 else '20' if ansible_memtotal_mb >= 24000 else '10' if ansible_memtotal_mb >= 16000 else '4' }}g"
+    memory_reservation: "{{ '35' if ansible_memtotal_mb >= 50000 else '20' if ansible_memtotal_mb >= 24000 else '10' if ansible_memtotal_mb >= 16000 else '4' }}g"
+    oom_killer: false
+    ports:
+      - "127.0.0.1:9200:9200/tcp"
+    volumes:
+      - /data/node/{{node_name}}:/usr/share/elasticsearch/data
+      - /data/node/{{node_name}}/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    env:
+      ES_JAVA_OPTS: "-Xms{{ '30' if ansible_memtotal_mb >= 50000 else '16' if ansible_memtotal_mb >= 24000 else '8' if ansible_memtotal_mb >= 16000 else '2' }}g -Xmx{{ '30' if ansible_memtotal_mb >= 50000 else '16' if ansible_memtotal_mb >= 24000 else '8' if ansible_memtotal_mb >= 16000 else '2' }}g"
+      cluster.name: "{{node_name}}"
+      discovery.type: "single-node"
+      bootstrap.memory_lock: "true"
+    ulimits:
+      - "nofile:65536:65536"
+      - "memlock:-1:-1"
+...

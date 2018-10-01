@@ -1,0 +1,39 @@
+---
+#FIXME#
+- name: creating ES group
+  group:
+    name: elasticsearch
+    state: present
+    gid: 119
+
+#FIXME#
+- name: creating ES user
+  user:
+    name: elasticsearch
+    group: elasticsearch
+    uid: 113
+    state: present
+
+- name: increasing the VM max map count.
+  sysctl:
+    name: vm.max_map_count
+    value: 262144
+    state: present
+
+- name: Creating directories for ES node data
+  file:
+    path: /data/node/{{node_name}}/
+    state: directory
+    mode: 0775
+    owner: elasticsearch
+    group: elasticsearch
+
+#FIXME# Permission fun~!
+- name: creating ES node config file
+  template:
+    src: templates/elasticsearch.yml.j2
+    dest: /data/node/{{node_name}}/elasticsearch.yml
+    owner: elasticsearch
+    group: elasticsearch
+    mode: 0775
+...

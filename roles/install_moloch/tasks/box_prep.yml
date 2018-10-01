@@ -1,0 +1,50 @@
+---
+- name: setting interfaces
+  set_fact:
+    monitoring_ports: "{{ lookup('template', 'templates/var_interfaces.j2') | from_yaml }}"
+
+- name: Running Host settings script.
+  script: files/host_settings.sh
+  args:
+    creates: /etc/security/limits.d/99-moloch.conf
+
+- name: Creating moloch config file structure
+  file:
+    path: "{{ item.p }}"
+    state: directory
+    owner: "{{ item.o }}"
+    group: "{{ item.g }}"
+    mode: "{{ item.m }}"
+  with_items:
+    - { p: '/data/moloch/etc', o: 'root', g: 'root', m: '0700' }
+    - { p: '/data/moloch/raw/{{node_name}}', o: 'nobody', g: 'daemon', m: '0700' }
+
+- name: templating files
+  template:
+    src: "{{ item.s }}"
+    dest: "{{ item.d }}"
+    owner: root
+    group: root
+    mode: 0755
+    newline_sequence: '\r\n'
+  with_items:
+    - { s: 'templates/config.ini.j2', d: '/data/moloch/etc/config.ini' }
+    - { s: 'templates/droptls.yml.j2', d: '/data/moloch/etc/droptls.yml' }
+
+- name: creating cert directory
+  file:
+    path: /etc/certs
+    state: directory
+    mode: 0755
+
+- name: copying over cert and key.
+  copy:
+    src: "{{ item.s }}"
+    dest: "{{ item.d }}"
+    owner: "{{ item.o }}"
+    group: "{{ item.g }}"
+    mode: 0600
+  with_items:
+    - { s: '{{ key_prefix }}.crt', d: '/etc/certs/{{ node_name }}.crt', o: 'nobody', g: 'nogroup' }
+    - { s: '{{ key_prefix }}.key', d: '/etc/certs/{{ node_name }}.key', o: 'nobody', g: 'nogroup' }
+...

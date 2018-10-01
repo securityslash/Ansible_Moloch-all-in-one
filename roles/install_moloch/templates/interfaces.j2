@@ -1,0 +1,14 @@
+{% for interface in ansible_interfaces | difference([ansible_default_ipv4.interface]) | difference(['lo']) %}
+{% if not interface.startswith("docker") and not interface.startswith("veth") and not interface.startswith("bridge") and not interface.startswith("br") %}
+auto {{ interface }}
+iface {{ interface }} inet manual
+
+{% raw %}
+up ip link set $IFACE promisc on arp off up
+down ip link set $IFACE promisc off down
+post-up ethtool -G $IFACE rx 4096; for i in rx tx sg tso ufo gso gro lro; do ethtool -K $IFACE $i off; done
+post-up echo 1 > /proc/sys/net/ipv6/conf/$IFACE/disable_ipv6
+
+{% endraw %}
+{% endif %}
+{% endfor %}

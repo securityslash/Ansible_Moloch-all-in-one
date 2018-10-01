@@ -1,0 +1,34 @@
+- name: Checking ifupdown installation
+  apt:
+    name: ifupdown
+    update_cache: yes
+    state: present
+  when: ansible_distribution_major_version|int >= 17
+
+- name: Checking to see if network/interfaces has been appeneded to already
+  shell: grep "for i in rx tx sg tso ufo gso gro lro;" /etc/network/interfaces
+  ignore_errors: yes
+  register: grep_append_interfaces
+
+- name: templating files
+  template:
+    src: "{{ item.s }}"
+    dest: "{{ item.d }}"
+    owner: root
+    group: root
+    mode: 0755
+    newline_sequence: '\r\n'
+  with_items:
+    - { s: 'templates/interfaces.j2', d: '/tmp/interface_configure' }
+  when: grep_append_interfaces.stdout == ""
+  
+- name: appending ethtool config to network/interfaces
+  shell: |
+    cp /etc/network/interfaces /etc/network/interfaces.old
+    cat /tmp/interface_configure >> /etc/network/interfaces
+  when: grep_append_interfaces.stdout == ""
+
+- name: Warning!
+  debug:
+    msg: "Networking changes have been made. You may need to reboot this box!"
+  when: grep_append_interfaces.stdout == ""
